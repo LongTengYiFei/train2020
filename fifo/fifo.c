@@ -4,6 +4,11 @@
 #include<assert.h>
 #include<string.h>
 int fifo_in(struct FIFO *self, void *src){
+	if(self->item_length == 0)
+	{
+		printf("please set the item length\n");
+		assert(0);
+	}
 	if(self->avail_bytes < self->item_length)
 		return 1;//fail	
 	//memcpy
@@ -17,10 +22,17 @@ int fifo_in(struct FIFO *self, void *src){
 	self->rear = (self->rear + self->item_length) % self->max_length;
 	self->used_bytes += self->item_length;
 	self->avail_bytes -= self->item_length;
+
+	self->item_length = 0;
 	return 0;//success
 }
 
 int fifo_out(struct FIFO *self, void *dest){
+	if(self->item_length == 0)
+	{
+		printf("please set the item length\n");
+		assert(0);
+	}
 	if(self->used_bytes <= 0){
 		return 1;//fail	
 	}
@@ -35,6 +47,8 @@ int fifo_out(struct FIFO *self, void *dest){
 	self->head = (self->head + self->item_length) % self->max_length;
 	self->used_bytes -= self->item_length;
 	self->avail_bytes += self->item_length;
+
+	self->item_length = 0;
 	return 0;//success
 }
  

@@ -6,7 +6,7 @@ struct FIFO{
 
 	int head;
 	int rear;
-	int max_length;//wo shi zai xiang bu chu geng hao de ming cheng le.
+	int max_length;
 
 	int (*in)(struct FIFO *self, void *src);
 	int (*out)(struct FIFO *self, void *dest);
