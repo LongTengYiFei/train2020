@@ -18,22 +18,29 @@ int main(){
 	int j;
         memset(A_list, 0, sizeof(A_list));
 
-        for(i = 0; i < 32; i++)
+	int num;
+	//printf("Please input the num:");
+	//scanf("%d",&num);
+	num = 32;//default
+        for(i = 0; i < num; i++)
         {
                 pA = malloc(sizeof(struct A));
                 pA->key = i;
                 pA->value = 100 + i;
                 hlist_add_head(&pA->list, &A_list[i & A_list_mask]);
         }
-
+	//hash list address the same hash index confict
+	//because this is head add, tou cha fa
+	//first output key=16,then key=0,they are both hash index 0
+	//the hash index 1,key=17 then key=1 and so on
         //Traverse the list
-        printf("After insert 32 items, traverse the hash list\n");
+        printf("traverse the hash list\n");
         i = 0;
         j = 0;
         for( i = 0; i <= A_list_mask; i++)
         hlist_for_each_entry(pA, &A_list[i], list)
         {
-                printf("num: %d, hash index %d: key: %d, value: %d\n", j++, i, pA->key, pA->value);
+                printf("num:%d\t,hash index:%d\t,key:%d\t,value:%d\t\n", j++, i, pA->key, pA->value);
 
         }
 
