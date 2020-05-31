@@ -1,0 +1,3 @@
+task 2 is build on the task1
+first: make so
+second: make run
