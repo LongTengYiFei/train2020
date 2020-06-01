@@ -1,12 +1,10 @@
-#include<stdio.h>
-#include<string.h>
-#include"cyf_kbRead.h"
-#include<fcntl.h>
-#include<linux/input.h>
-#include<unistd.h>
+#include <stdio.h>
+#include <linux/input.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include<unistd.h>
 #define CHECK_POINT
 int main(){
 	int fd = open("/dev/input/event2",O_RDONLY);
@@ -14,10 +12,9 @@ int main(){
 	printf("fd = %d\n",fd);
 	#endif
 	struct input_event t;
-	printf("size of t = %d\n",sizeof(t));
+	printf("size of t = %d\n",sizeof(struct t));
 	while(1)
 	{
-		printf("while -\n");
 		sleep(1);	
 		int len = read(fd, &t, sizeof(t));
 		if(len == sizeof(t))
