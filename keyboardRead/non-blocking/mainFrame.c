@@ -62,7 +62,6 @@ int main()
 				}
 
 		}
-		else printf("no key\n");
 
 	}
 	close(fd);
