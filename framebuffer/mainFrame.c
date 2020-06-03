@@ -75,12 +75,12 @@ int main(){
 	printf("size of base = %d\n",sizeof(DISPLAY_MEM_BASE_fb));	
 	printf("base = %p\n",DISPLAY_MEM_BASE_fb);
 
-	for(long int i=0 ; i<= 800 *600; i++){	
+	for(long int i=0 ; i<= 1366 *768 -1; i++){	
 		//printf("base = %ld i = %ld ",DISPLAY_MEM_BASE_fb, i);
 		//printf("addr = %ld\n", DISPLAY_MEM_BASE_fb + 1);
 		memcpy((int *)(DISPLAY_MEM_BASE_fb +i), &buf, sizeof(buf));
 	}
-	munmap(DISPLAY_MEM_BASE_fb, 16777216);
+	munmap(DISPLAY_MEM_BASE_fb, 1366 *768 *4);
 	int wait_second1 = 5;
 	printf("pure color show over, wait %d seconds\n", wait_second1);
 	sleep(wait_second1);
