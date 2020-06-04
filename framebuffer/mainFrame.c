@@ -36,7 +36,7 @@ void pure_color(enum color co){
 	for(long int i=0 ; i<= 1376 *768 -1; i++){	
 		//printf("base = %ld i = %ld ",DISPLAY_MEM_BASE_fb, i);
 		//printf("addr = %ld\n", DISPLAY_MEM_BASE_fb + 1);
-		//base + i will reduce base +4
+		//base + i will reduce base +i*4
 		//i dont know why
 		memcpy((int *)(DISPLAY_MEM_BASE_fb +i), &buf, sizeof(buf));
 	}
@@ -52,17 +52,37 @@ void point_draw(int x, int y, enum color co){
 	//if you want to show a point x in[1366,1376],it will not show in screen
 	//here y *1376 to locate the location
 	int location = x +y *1376;
+	printf("%d\n",DISPLAY_MEM_BASE_fb +location);
 	memcpy((int *)(DISPLAY_MEM_BASE_fb +location), &buf, sizeof(buf));
 	munmap(DISPLAY_MEM_BASE_fb +location, 4);
         return;
 }
-void line_draw(int x1, int y1, int x2, int y2,  enum color co){
+void point_buff(int x, int y, enum color co){
 	int buf;
 	buf = color_trans(co);
-	int location1 = x1 +y1 *1376;
-	int location2 = x2 +y2 *1376;
-
-
+	int location = x +y *1376;
+	memcpy((int *)(DISPLAY_MEM_BASE_fb +location), &buf, sizeof(buf));
+        return;
+}
+void line_draw(double x1, double y1, double x2, double y2,  enum color co){
+	//use point draw to implement line draw
+/*
+	when draw many point, dont use point_draw(),
+	because after draw a point,memory will unmap
+	then when draw next point ,use the base address will segment fault
+	so use a new funcion point_buff,it just memcpy 
+	you can buff many point and in the funcion line_draw to umap framebuff
+*/
+	double k = (y2 -y1)/(x2 -x1);
+	printf("k = %lf\n",k);
+	if(x2 < x1){
+		for(int i=0; i<=x1 -x2; i++)
+			point_buff(x2 +i, y2+ i*k,co);
+	}else{//x1 < x2
+		for(int i=0; i<=x2 -x1; i++)
+			point_buff((int)(x1 +i), (int)(y1+ (int)(i*k)),co);
+	}
+	munmap(DISPLAY_MEM_BASE_fb, 1376 *768 *4);
         return;
 }
 void matrix_draw(int x_start, int y_start, int width, int height, enum color co){
@@ -119,11 +139,13 @@ void fb_init(char *dev)
         return;
 }
 int main(){
+	//my dell machine is 1366 *768
+	//here are many hard code,it is not good
 	fb_init("/dev/fb0");
 	printf("size of base = %d\n",sizeof(DISPLAY_MEM_BASE_fb));	
 	printf("base = %p\n",DISPLAY_MEM_BASE_fb);
 	int wait_second = 5;
-	//task1----------------
+	//task1 clear screen and show pure color----------
 	
 	pure_color(white);
 	printf("pure color show over, wait %d seconds\n", wait_second);
@@ -133,7 +155,9 @@ int main(){
 	//point
 	fb_init("/dev/fb0");//last task has unmap fb0,so we need to init agian, unless will be segment fault
 	point_draw(1366/2, 768/2, red);	
-	printf("a point in the due middle, wait %d seconds\n",wait_second);
+	point_draw(1366/4, 768/4, red);
+
+	printf("point over, wait %d seconds\n",wait_second);
 	sleep(wait_second);
 	
 	//line
