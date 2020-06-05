@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include<sys/mman.h>
 #include<string.h>
+#include"_font.h"
 enum color{
 	red = 1,
 	yellow,
@@ -52,7 +53,6 @@ void point_draw(int x, int y, enum color co){
 	//if you want to show a point x in[1366,1376],it will not show in screen
 	//here y *1376 to locate the location
 	int location = x +y *1376;
-	printf("%d\n",DISPLAY_MEM_BASE_fb +location);
 	memcpy((int *)(DISPLAY_MEM_BASE_fb +location), &buf, sizeof(buf));
 	munmap(DISPLAY_MEM_BASE_fb +location, 4);
         return;
@@ -65,7 +65,7 @@ void point_buff(int x, int y, enum color co){
         return;
 }
 void line_draw(double x1, double y1, double x2, double y2,  enum color co){
-	//use point draw to implement line draw
+	//use point buff to implement line draw
 /*
 	when draw many point, dont use point_draw(),
 	because after draw a point,memory will unmap
@@ -98,7 +98,38 @@ void matrix_draw(int x_start, int y_start, int width, int height, enum color co)
 			munmap(DISPLAY_MEM_BASE_fb +location_start +j+1376*i, 4);
         return;
 }
-void char_draw(char c){
+void char_line_buff(int x, int y, unsigned short code, enum color co){
+	int x_now = x +15;
+	int code_now = code;
+	for(int i=0;i<=15;i++)//a line is 16 pix
+		if(code_now %2 == 0){
+			x_now --;
+			code_now /=2;
+		}
+		else{ 
+			point_buff(x_now--, y, co);
+			code_now /=2;
+		}
+}
+void char_draw(int x, int y, char c, enum color co){
+	int buf;
+	buf = color_trans(co);
+	//use point buff to implement char draw
+	//
+	//the first font in the _font.c is 0x20
+	int x_now = x;
+	int y_now = y;
+	int font_index = (c - 0x20) * CHAR_HEIGHT;
+	for(int i=0;i<=CHAR_HEIGHT -1;i++){
+		if(helvB12_bits[font_index] == 0)
+		{	
+			font_index++;
+			y_now ++;
+		}
+		else 
+			char_line_buff(x_now, y_now++ ,helvB12_bits[font_index++], co);	
+	}	
+	munmap(DISPLAY_MEM_BASE_fb, 1376 *768 *4);
         return;
 }
 
@@ -110,7 +141,7 @@ void fb_init(char *dev)
         struct fb_var_screeninfo fb_var;
         char *buf;
 
-        if ((fd = open(dev, O_RDWR)) < 0)       {
+        if ((fd = open(dev, O_RDWR)) < 0){
                 printf("Unable to open framebuffer %s\n", dev);
                 return;
         }
@@ -168,11 +199,16 @@ int main(){
 
 	//matrix
 	fb_init("/dev/fb0");
-	matrix_draw(1366/2,768/2, 10, 10 ,blue);
+	matrix_draw(1366/2,768/2, 200, 100 ,blue);
 	printf("matrix over, wait %d seconds\n",wait_second);
 	sleep(wait_second);
 
 	//task3 draw character-------------------
+	char c = 'H';
+	fb_init("/dev/fb0");
+	char_draw(1366/2,768/2, c,red);
+	printf("char '%c' over, wait %d seconds\n",c,wait_second);
+	sleep(wait_second);
 
 
 
