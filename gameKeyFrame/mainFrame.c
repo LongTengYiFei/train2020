@@ -231,6 +231,27 @@ int main(){
 				c[i] = char_gen_v1(i);
 			char_draw(x[i], y[i], c[i], red);	
 		}
+		//right score draw
+		int right_tmp = right_score;
+		for(int i=0;;i++){
+			fb_init("/dev/fb0");
+			int right_unit = right_tmp %10;
+			char_draw(1300 -i*CHAR_WIDTH, 50, right_unit + '0', red);
+			right_tmp/=10;
+			if(right_tmp == 0)
+				break;
+		}
+		//wrong score draw
+		int wrong_tmp = wrong_score;
+		for(int i=0;;i++){
+			fb_init("/dev/fb0");
+			int wrong_unit = wrong_tmp %10;
+			char_draw(1300 -i*CHAR_WIDTH, 100, wrong_unit + '0', red);
+			wrong_tmp/=10;
+			if(wrong_tmp == 0)
+				break;
+		}
+			
 		//key detect
 		char user_key = 0;
 		int key_detect_wait = 1000;
@@ -269,6 +290,8 @@ int main(){
 		}
 		if(wrong_flag == 1 && t.type == EV_KEY)
 			wrong_score ++;
+
+
 	}
 	//game over
 	fb_init("/dev/fb0");
