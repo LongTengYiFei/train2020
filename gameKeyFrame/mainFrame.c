@@ -153,16 +153,13 @@ char char_gen_v1(int seed){//regular version
 char char_gen_v2(int seed);//random version
 
 
-#define speed_low  CHAR_HEIGHT * 1;//pixel per second
-#define speed_mid   CHAR_HEIGHT* 2;
-#define speed_high  CHAR_HEIGHT* 3;
 int speed_gen(int seed){
 	if(seed %3 ==0)
-		return speed_low;
+		return CHAR_HEIGHT *1;//slow
 	if(seed %3 ==1)
-		return speed_mid;
+		return CHAR_HEIGHT *2;//moderate
 	if(seed %3 ==2)
-		return speed_high;
+		return CHAR_HEIGHT *3;//fast
 }
 //my dell 1366 *768 is event3 keyboard
 #define DEV_PATH "/dev/input/event3"
@@ -205,7 +202,7 @@ int main(){
 	//open key dev
 	int fd;
 	struct input_event t;
-	fd=open(DEV_PATH, O_RDONLY);
+	fd=open(DEV_PATH, O_RDONLY | O_NONBLOCK);
 	if(fd <= 0)
 	{
 		printf("open device error!\n");
@@ -215,7 +212,7 @@ int main(){
 	while(1){
 		//caculate the Y of all the char
 		for(int i=0; i<=numOfColumn -1; i++){
-			y[i] += speed[i]*wait_second;	
+			y[i] += speed[i];	
 		}
 		//Is it game over? check
 		int flag = 0;
@@ -236,39 +233,48 @@ int main(){
 		}
 		//key detect
 		char user_key = 0;
-		if(read(fd, &t, sizeof(t)) == sizeof(t))
-		{	
-			if(t.type==EV_KEY)
-				if(t.value==0 || t.value==1)
-				{	
-					if(t.code <= 25 && t.code >=16)
-						user_key = keys1[t.code - 16];
-					if(t.code <= 38 && t.code >=30)
-						user_key = keys2[t.code - 30];
-					if(t.code <= 50 && t.code >=44)
-						user_key = keys3[t.code - 44];
-					if(t.code == KEY_ESC)
-						break;
-				}
+		int key_detect_wait = 1000;
+		while(1){
+			if(read(fd, &t, sizeof(t)) == sizeof(t))
+			{		
+				if(t.type==EV_KEY)
+					if(t.value==0)//just push is one score
+					{	
+						if(t.code <= 25 && t.code >=16)
+							user_key = keys1[t.code - 16];
+						if(t.code <= 38 && t.code >=30)
+							user_key = keys2[t.code - 30];
+						if(t.code <= 50 && t.code >=44)
+							user_key = keys3[t.code - 44];
+						if(t.code == KEY_ESC)
+							break;
+					}
 
+			}
+			usleep(1000);//1 ms == 1000 us
+			key_detect_wait --;
+			if(key_detect_wait <= 0)break;
+			if(user_key != 0)break;
 		}
 		user_key = user_key - 'a' + 'A';
 		//check key
+		int wrong_flag = 1;
 		for(int i=0;i<=numOfColumn -1;i++){
 			if(c[i] == user_key && t.type == EV_KEY){
 				right_score ++;
 				c[i] = 0;
 				y[i] = 0;
-			}
-			else if(t.type == EV_KEY){ 
-				wrong_score ++;
+				wrong_flag = 0;
 			}
 		}
-		sleep(wait_second);
+		if(wrong_flag == 1 && t.type == EV_KEY)
+			wrong_score ++;
 	}
 	//game over
 	fb_init("/dev/fb0");
 	pure_color(black);
+	printf("RIGHT SCORE :%d\n",right_score);
+	printf("WRONG SCORE:%d\n",wrong_score);
 	sleep(5);
 	
 	return 0;
