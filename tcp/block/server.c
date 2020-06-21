@@ -39,11 +39,12 @@ int main(){
 		printf("accept error\n");
 		return 0;
 	}
+	int num = 0;
 	while(1){
 		const char *client_ip = inet_ntop(AF_INET, &cliaddr.sin_addr, buf, sizeof(buf)); 
 		uint16_t client_port = ntohs(cliaddr.sin_port);
 		printf("connection from ip: %s, port: %d\n",client_ip, client_port);	
-		sprintf(buf, "Hello,this is server!\n");
+		sprintf(buf, "Hello,this is server!%d\n",num++);
 		sleep(1);
 		write(connection_fd, buf, strlen(buf));
 	}

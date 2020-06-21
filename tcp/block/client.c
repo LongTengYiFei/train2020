@@ -49,7 +49,7 @@ int main(){
 	int n = read(socket_fd, receive_buff, 200);
 	while(n >= 0){
 		receive_buff[n] = '\0';
-		sleep(1);
+		sleep(5);
 		printf("receive_buff:%s",receive_buff);	
 		n = read(socket_fd, receive_buff, 200);
 	
