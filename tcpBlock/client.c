@@ -3,6 +3,7 @@
 #include<netinet/in.h>
 #include<string.h>
 #include<arpa/inet.h>
+#include<unistd.h>
 int main(){
 	printf("Please input the server ip:");
 	char server_ip[4*3+ 3+ 1];
@@ -44,5 +45,16 @@ int main(){
 		return 0;
 	}
 	printf("connection success!\n");
+	char receive_buff[200];
+	int n = read(socket_fd, receive_buff, 200);
+	while(n >= 0){
+		receive_buff[n] = '\0';
+		sleep(1);
+		printf("receive_buff:%s",receive_buff);	
+		n = read(socket_fd, receive_buff, 200);
+	
+	}
+	if(n < 0)
+		printf("read socket error\n");
 	return 0;
 }
