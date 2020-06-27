@@ -15,6 +15,14 @@ void print_message (void *ptr);
 __thread int tls_var1 = 0;
 int var2 = 0;
 pthread_t thread1, thread2;
+
+struct fish{
+	int f_count;
+	pthread_mutex_t f_lock;
+	int f_id;
+
+};
+
 int main()
 {
     void *retval;
