@@ -6,6 +6,8 @@
 #include<dirent.h>
 #include<sys/time.h>
 #include<sys/types.h>
+//my first file copy
+//can copy file and fold
 int fileCopy(char *file1, char* file2, int buf_len){
 	struct stat stat_buf;
 	lstat(file1, &stat_buf);

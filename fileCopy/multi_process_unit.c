@@ -7,7 +7,7 @@
 #include<sys/time.h>
 #include<sys/types.h>
 #include<pthread.h>
-//process_copy_unit.c
+//version:multi process
 const int block_size = 128 * 1024;
 
 int fileCopy(char *file1, char* file2, int p_num){
